@@ -9,9 +9,6 @@ export const auth = betterAuth({
     client,
   }),
 
-  //   এখানে বেইজ ইউআরএল ব্যবহার করা হল ইএনভি ফাইল থেকে এনে।
-  baseURL: process.env.BETTER_AUTH_URL,
-
   // ইমেইল এবং পাসওয়ার্ড এনেবল করলাম।
   emailAndPassword: {
     enabled: true,
