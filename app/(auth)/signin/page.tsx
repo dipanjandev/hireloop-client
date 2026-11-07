@@ -4,6 +4,9 @@ import React, { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react"
+import { signIn } from "@/lib/auth-client"
+import toast from "react-hot-toast"
+import { redirect } from "next/navigation"
 
 export default function SignInPage() {
   // ১. ফর্ম ডাটা স্টেট (Form Data State)
@@ -27,12 +30,12 @@ export default function SignInPage() {
   }
 
   // ৪. ফর্ম সাবমিট হ্যান্ডলার (Submit Event Handler)
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsLoading(true)
 
     // ফর্ম থেকে সংগৃহীত ডাটা কনসোলে দেখানো হচ্ছে
-    console.log("Sign In Form Submitted Data:", formData)
+    // console.log("Sign In Form Submitted Data:", formData)
 
     /*
       TODO: আপনার সুবিধার্থে এখানে Better-Auth বা ব্যাকএন্ড এপিআই কল করার জায়গা রাখা হলো।
@@ -42,6 +45,15 @@ export default function SignInPage() {
         password: formData.password,
       })
     */
+    const { data, error } = await signIn.email({
+      ...formData,
+    })
+    if (data) {
+      toast.success("Login Successfully")
+      redirect("/")
+    } else if (error) {
+      toast.error("Login Failed")
+    }
 
     setTimeout(() => {
       setIsLoading(false)
