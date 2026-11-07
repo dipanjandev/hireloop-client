@@ -1,4 +1,4 @@
-import { betterAuth } from "better-auth"
+import { betterAuth, string } from "better-auth"
 import { MongoClient } from "mongodb"
 import { mongodbAdapter } from "@better-auth/mongo-adapter"
 
@@ -17,8 +17,10 @@ export const auth = betterAuth({
   user: {
     additionalFields: {
       role: {
-        type: ["seeker", "recruiter", "admin"],
-        input: false,
+        type: "string",
+        required: false,
+        defaultValue: "seeker",
+        input: true,
       },
     },
   },

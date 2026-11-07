@@ -3,6 +3,7 @@
 import React, { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 import {
   Mail,
   Lock,
@@ -12,18 +13,20 @@ import {
   ArrowRight,
   Briefcase,
   UserCheck,
+  ShieldCheck,
 } from "lucide-react"
 import { signUp } from "@/lib/auth-client"
 import toast from "react-hot-toast"
-import { redirect } from "next/navigation"
 
 export default function SignUpPage() {
-  // ১. সাইন-আপ ফর্ম ডাটা স্টেট (Sign Up Form Data State)
+  const router = useRouter()
+
+  // ১. সাইন-আপ ফর্ম ডাটা স্টেট (role: seeker | recruiter | admin)
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
-    accountType: "seeker", // "seeker" (চাকরিপ্রার্থী) অথবা "employer" (কোম্পানি/নিয়োগকারী)
+    role: "seeker" as "seeker" | "recruiter" | "admin",
     agreeTerms: false,
   })
 
@@ -31,7 +34,7 @@ export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
-  // ৩. ইনপুট পরিবর্তন হ্যান্ডলার (Input Change Handler)
+  // ৩. ইনপুট পরিবর্তন হ্যান্ডলার
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target
     setFormData((prev) => ({
@@ -40,46 +43,57 @@ export default function SignUpPage() {
     }))
   }
 
-  // ৪. অ্যাকাউন্ট টাইপ নির্বাচন হ্যান্ডলার (Seeker vs Employer)
-  const handleTypeSelect = (type: "seeker" | "employer") => {
-    setFormData((prev) => ({ ...prev, accountType: type }))
+  // ৪. রোল সিলেকশন হ্যান্ডলার ("seeker", "recruiter", "admin")
+  const handleRoleSelect = (selectedRole: "seeker" | "recruiter" | "admin") => {
+    setFormData((prev) => ({ ...prev, role: selectedRole }))
   }
 
-  // ৫. ফর্ম সাবমিট হ্যান্ডলার (Submit Event Handler)
+  // ৫. ফর্ম সাবমিট হ্যান্ডলার ও Better-Auth-এ ডাটা প্রেরণ
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+
+    if (!formData.agreeTerms) {
+      toast.error("Please agree to the Terms of Service & Privacy Policy")
+      return
+    }
+
     setIsLoading(true)
+    // console.log(formData, "User Data")
 
-    // ফর্ম থেকে সংগৃহীত ডাটা কনসোলে লগ করা হচ্ছে
-    // console.log("Sign Up Form Submitted Data:", formData)
-
-    /*
-      TODO: আপনার সুবিধার্থে এখানে Better-Auth বা ব্যাকএন্ড এপিআই কল করার জায়গা রাখা হলো।
-      যেমন:
-      await signUp.email({
+    try {
+      // Better-Auth এর signUp.email মেথডে ডাটা সেন্ড করা হচ্ছে
+      const { data, error } = await signUp.email({
         name: formData.name,
         email: formData.email,
         password: formData.password,
-      })
-    */
-    const { data, error } = await signUp.email({
-      ...formData,
-    })
-    if (data) {
-      toast.success("Account Create Successfully!")
-      redirect("/")
-    } else if (error) {
-      toast.error("Something Went Wrong!")
-    }
+        role: formData.role,
+      } as Record<string, unknown> as Parameters<typeof signUp.email>[0])
 
-    setTimeout(() => {
+      if (error) {
+        toast.error(
+          error.message || "Failed to create account. Please try again."
+        )
+        setIsLoading(false)
+        return
+      }
+
+      if (data) {
+        toast.success("Account created successfully!")
+        router.push("/")
+      }
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        toast.error(err.message)
+      } else {
+        toast.error("An unexpected error occurred!")
+      }
+    } finally {
       setIsLoading(false)
-    }, 800)
+    }
   }
 
   // ৬. গুগল দিয়ে সাইন-আপ হ্যান্ডলার
-  const handleGoogleSignUp = () => {
-    // console.log("Triggered Google Sign Up")
+  const handleGoogleSignUp = async () => {
     /*
       TODO: Better-Auth Google Sign Up Integration
       await signIn.social({ provider: "google" })
@@ -116,33 +130,54 @@ export default function SignUpPage() {
           </p>
         </div>
 
-        {/* অ্যাকাউন্ট টাইপ নির্বাচন (Job Seeker নাকি Employer) */}
-        <div className="mb-6 grid grid-cols-2 gap-3 rounded-2xl border border-white/10 bg-[#161620] p-1.5">
-          <button
-            type="button"
-            onClick={() => handleTypeSelect("seeker")}
-            className={`flex cursor-pointer items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-semibold transition-all duration-200 sm:text-sm ${
-              formData.accountType === "seeker"
-                ? "bg-[#5851ff] text-white shadow-[0_0_15px_rgba(88,81,255,0.4)]"
-                : "text-neutral-400 hover:text-white"
-            }`}
-          >
-            <UserCheck className="h-4 w-4" />
-            Job Seeker
-          </button>
+        {/* ব্যবহারকারী রোল নির্বাচন (Seeker / Recruiter / Admin) */}
+        <div className="mb-6 space-y-2">
+          <label className="text-xs font-medium text-neutral-300">
+            I am joining as a
+          </label>
+          <div className="grid grid-cols-3 gap-2 rounded-2xl border border-white/10 bg-[#161620] p-1.5">
+            {/* ১. Seeker বাটন */}
+            <button
+              type="button"
+              onClick={() => handleRoleSelect("seeker")}
+              className={`flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-semibold transition-all duration-200 sm:flex-row ${
+                formData.role === "seeker"
+                  ? "bg-[#5851ff] text-white shadow-[0_0_15px_rgba(88,81,255,0.45)]"
+                  : "text-neutral-400 hover:bg-white/5 hover:text-white"
+              }`}
+            >
+              <UserCheck className="h-4 w-4" />
+              <span>Seeker</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => handleTypeSelect("employer")}
-            className={`flex cursor-pointer items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-semibold transition-all duration-200 sm:text-sm ${
-              formData.accountType === "employer"
-                ? "bg-[#5851ff] text-white shadow-[0_0_15px_rgba(88,81,255,0.4)]"
-                : "text-neutral-400 hover:text-white"
-            }`}
-          >
-            <Briefcase className="h-4 w-4" />
-            Employer
-          </button>
+            {/* ২. Recruiter বাটন */}
+            <button
+              type="button"
+              onClick={() => handleRoleSelect("recruiter")}
+              className={`flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-semibold transition-all duration-200 sm:flex-row ${
+                formData.role === "recruiter"
+                  ? "bg-[#5851ff] text-white shadow-[0_0_15px_rgba(88,81,255,0.45)]"
+                  : "text-neutral-400 hover:bg-white/5 hover:text-white"
+              }`}
+            >
+              <Briefcase className="h-4 w-4" />
+              <span>Recruiter</span>
+            </button>
+
+            {/* ৩. Admin বাটন */}
+            <button
+              type="button"
+              onClick={() => handleRoleSelect("admin")}
+              className={`flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-semibold transition-all duration-200 sm:flex-row ${
+                formData.role === "admin"
+                  ? "bg-[#5851ff] text-white shadow-[0_0_15px_rgba(88,81,255,0.45)]"
+                  : "text-neutral-400 hover:bg-white/5 hover:text-white"
+              }`}
+            >
+              <ShieldCheck className="h-4 w-4" />
+              <span>Admin</span>
+            </button>
+          </div>
         </div>
 
         {/* গুগল ওয়ান-ক্লিক সাইন-আপ বাটন */}
@@ -172,7 +207,7 @@ export default function SignUpPage() {
           Sign up with Google
         </button>
 
-        {/* ওরিজিনাল ডিভাইডার */}
+        {/* ডিভাইডার */}
         <div className="relative my-6 flex items-center justify-center">
           <div className="w-full border-t border-white/10" />
           <span className="absolute bg-[#121217] px-3 text-xs text-neutral-500 uppercase">
@@ -263,7 +298,7 @@ export default function SignUpPage() {
             </div>
           </div>
 
-          {/* শর্তাবলী সম্মতি চেকবক্স (Terms of Service Checkbox) */}
+          {/* শর্তাবলী সম্মতি চেকবক্স */}
           <div className="flex items-start gap-2 pt-1">
             <input
               id="agreeTerms"
@@ -313,7 +348,7 @@ export default function SignUpPage() {
           </button>
         </form>
 
-        {/* পেজ টগল লিংক (Sign In পেজে যাওয়ার জন্য) */}
+        {/* পেজ টগল লিংক */}
         <p className="mt-7 text-center text-xs text-neutral-400 sm:text-sm">
           Already have an account?{" "}
           <Link
