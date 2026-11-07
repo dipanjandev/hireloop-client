@@ -2,8 +2,7 @@ import { betterAuth } from "better-auth"
 import { MongoClient } from "mongodb"
 import { mongodbAdapter } from "@better-auth/mongo-adapter"
 
-const uri = process.env.MONGODB_URI || "mongodb://localhost:27017/hireloop-db"
-const client = new MongoClient(uri)
+const client = new MongoClient(process.env.BETTERAUTH_DB_URI as string)
 const db = client.db("hireloop-db")
 
 export const auth = betterAuth({
@@ -22,4 +21,3 @@ export const auth = betterAuth({
     },
   },
 })
-
