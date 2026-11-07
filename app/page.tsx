@@ -1,7 +1,11 @@
+import HeroSection from "@/components/homepage-components/HeroSection"
+import NavBar from "@/components/homepage-components/NavBar"
+
 export default function Page() {
   return (
-    <div className="flex min-h-svh p-6">
-      <h2>This is The HomePage.</h2>
+    <div>
+      <NavBar />
+      <HeroSection />
     </div>
   )
 }
