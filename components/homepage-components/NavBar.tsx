@@ -12,6 +12,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { useState } from "react"
+import { authClient, useSession } from "@/lib/auth-client"
+
 interface NavItem {
   title: string
   href: string
@@ -24,7 +26,17 @@ const navLinks: NavItem[] = [
 ]
 
 const NavBar = () => {
+  const { data: session } = useSession()
+  // console.log("user session", session?.user)
+  const userSession = session?.user
+  console.log(userSession)
+
   const [isOpen, setIsOpen] = useState(false)
+
+  const handleSignOut = async () => {
+    await authClient.signOut()
+  }
+
   return (
     <header className="sticky top-0 z-50 w-full px-4 pt-4 pb-2 sm:px-6 lg:px-8">
       {/* Container: Dark floating pill style as per design */}
@@ -62,16 +74,30 @@ const NavBar = () => {
 
           {/* Action Links & Buttons */}
           <div className="flex items-center gap-4">
-            <Link
-              href="/signin"
-              className="px-2 py-1 text-sm font-medium text-[#7056ff] transition-colors duration-200 hover:text-[#8a75ff]"
-            >
-              Sign In
-            </Link>
+            {userSession ? (
+              <>
+                <span>Welcome, {userSession.name}</span>
+                <Button
+                  onClick={handleSignOut}
+                  className="h-11 rounded-xl bg-red-500 px-6 py-2 text-sm font-medium text-white transition-all duration-200 hover:bg-red-700"
+                >
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/signin"
+                  className="px-2 py-1 text-sm font-medium text-[#7056ff] transition-colors duration-200 hover:text-[#8a75ff]"
+                >
+                  Sign In
+                </Link>
 
-            <Button className="h-11 rounded-xl bg-[#5851ff] px-6 py-2 text-sm font-medium text-white shadow-[0_0_20px_rgba(88,81,255,0.4)] transition-all duration-200 hover:bg-[#4b43f0] hover:shadow-[0_0_25px_rgba(88,81,255,0.6)]">
-              <Link href="/get-started">Get Started</Link>
-            </Button>
+                <Button className="h-11 rounded-xl bg-[#5851ff] px-6 py-2 text-sm font-medium text-white shadow-[0_0_20px_rgba(88,81,255,0.4)] transition-all duration-200 hover:bg-[#4b43f0] hover:shadow-[0_0_25px_rgba(88,81,255,0.6)]">
+                  <Link href="/get-started">Get Started</Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
 
@@ -118,19 +144,28 @@ const NavBar = () => {
 
               {/* Mobile CTA */}
               <div className="flex flex-col gap-3 border-t border-neutral-800 pt-6">
-                <Link
-                  href="/signin"
-                  onClick={() => setIsOpen(false)}
-                  className="w-full rounded-lg py-2.5 text-center text-sm font-medium text-[#7056ff] transition-colors hover:text-[#8a75ff]"
-                >
-                  Sign In
-                </Link>
+                {userSession ? (
+                  <span>Welcome, {userSession.name}</span>
+                ) : (
+                  <>
+                    <Link
+                      href="/signin"
+                      onClick={() => setIsOpen(false)}
+                      className="w-full rounded-lg py-2.5 text-center text-sm font-medium text-[#7056ff] transition-colors hover:text-[#8a75ff]"
+                    >
+                      Sign In
+                    </Link>
 
-                <Button className="h-11 w-full rounded-xl bg-[#5851ff] font-medium text-white shadow-[0_0_15px_rgba(88,81,255,0.3)] hover:bg-[#4b43f0]">
-                  <Link href="/get-started" onClick={() => setIsOpen(false)}>
-                    Get Started
-                  </Link>
-                </Button>
+                    <Button className="h-11 w-full rounded-xl bg-[#5851ff] font-medium text-white shadow-[0_0_15px_rgba(88,81,255,0.3)] hover:bg-[#4b43f0]">
+                      <Link
+                        href="/get-started"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        Get Started
+                      </Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </SheetContent>
           </Sheet>
