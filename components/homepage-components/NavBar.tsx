@@ -19,17 +19,18 @@ interface NavItem {
   href: string
 }
 
-const navLinks: NavItem[] = [
-  { title: "Browse Jobs", href: "/jobs" },
-  { title: "Company", href: "/company" },
-  { title: "Pricing", href: "/pricing" },
-]
-
 const NavBar = () => {
   const { data: session } = useSession()
   // console.log("user session", session?.user)
   const userSession = session?.user
-  console.log(userSession)
+
+  // Navigation Links
+  const navLinks: NavItem[] = [
+    { title: "Browse Jobs", href: "/jobs" },
+    { title: "Company", href: "/company" },
+    { title: "Pricing", href: "/pricing" },
+    { title: "Dashboard", href: `/dashboard/${userSession?.role}` },
+  ]
 
   const [isOpen, setIsOpen] = useState(false)
 
