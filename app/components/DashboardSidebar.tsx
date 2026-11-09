@@ -27,6 +27,7 @@ import {
   BarChart3,
   ShieldCheck,
 } from "lucide-react"
+import Image from "next/image"
 
 // ১. সাইডবার মেনু আইটেমের টাইপস্ক্রিপ্ট ইন্টারফেস
 export interface SidebarMenuItemType {
@@ -187,8 +188,12 @@ export function DashboardSidebar() {
           href="/"
           className="flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-colors hover:bg-white/5"
         >
-          <span className="text-[#0091ff]">hire</span>
-          <span className="text-[#ff7300]">loop</span>
+          <Image
+            src={"/images/logo.png"}
+            alt="hireloop-logo"
+            width={100}
+            height={50}
+          />
           <span className="ml-auto rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-[11px] font-normal text-neutral-400 capitalize">
             {role}
           </span>
