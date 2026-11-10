@@ -1,6 +1,3 @@
-"use client"
-
-import { useState } from "react"
 import Link from "next/link"
 import {
   Code2,
@@ -12,18 +9,18 @@ import {
   MapPin,
   Globe2,
   Pencil,
-  Trash2,
   MoreVertical,
   Plus,
   ChevronRight,
   Briefcase,
 } from "lucide-react"
-import toast from "react-hot-toast"
 import { Job, JobType, JobStatus } from "@/types/job"
+import { getJobs } from "@/lib/api/jobs"
+import DeleteButton from "@/components/DeleteButton"
 
 // ফিগমা স্ক্রিনশটের হুবহু ডামি ডাটা তালিকা
-interface DisplayJobItem extends Partial<Job> {
-  id: string
+export interface DisplayJobItem extends Partial<Job> {
+  _id: string
   title: string
   department: string
   companyName: string
@@ -37,83 +34,9 @@ interface DisplayJobItem extends Partial<Job> {
   postedTime: string
 }
 
-// Dummy Jobs
-const initialJobs: DisplayJobItem[] = [
-  {
-    id: "job-1",
-    title: "Frontend Developer",
-    department: "Engineering",
-    companyName: "HirePulse Network",
-    location: "Remote (New York, USA)",
-    isRemote: true,
-    jobType: "Full-time",
-    compensation: "€25 – €40 / hr",
-    applicantsCount: 34,
-    status: "active",
-    deadlineFormatted: "May 30, 2025",
-    postedTime: "Posted 4d ago",
-  },
-  {
-    id: "job-2",
-    title: "Senior Product Designer",
-    department: "Design",
-    companyName: "HirePulse Labs",
-    location: "London, UK (Hybrid)",
-    isRemote: false,
-    jobType: "Full-time",
-    compensation: "€90k – €115k / yr",
-    applicantsCount: 19,
-    status: "active",
-    deadlineFormatted: "Jun 14, 2025",
-    postedTime: "Posted 1w ago",
-  },
-  {
-    id: "job-3",
-    title: "DevOps Specialist",
-    department: "Infrastructure",
-    companyName: "HirePulse Platform",
-    location: "Berlin, Germany",
-    isRemote: false,
-    jobType: "Full-time",
-    compensation: "€95k – €120k / yr",
-    applicantsCount: 12,
-    status: "active",
-    deadlineFormatted: "Jun 30, 2025",
-    postedTime: "Posted 2w ago",
-  },
-  {
-    id: "job-4",
-    title: "Product Marketing Lead",
-    department: "Marketing",
-    companyName: "HirePulse Network",
-    location: "Remote (EU/US)",
-    isRemote: true,
-    jobType: "Full-time",
-    compensation: "€80k – €105k / yr",
-    applicantsCount: 27,
-    status: "active",
-    deadlineFormatted: "Jul 15, 2025",
-    postedTime: "Posted 5d ago",
-  },
-  {
-    id: "job-5",
-    title: "QA Automation Engineer",
-    department: "Quality",
-    companyName: "HirePulse Platform",
-    location: "Dublin, Ireland (Hybrid)",
-    isRemote: false,
-    jobType: "Part-time",
-    compensation: "€35 – €50 / hr",
-    applicantsCount: 8,
-    status: "expired",
-    deadlineFormatted: "May 01, 2025",
-    postedTime: "Closed",
-  },
-]
-
 // ডিপার্টমেন্ট অনুযায়ী আইকন ও কালার হেল্পার
 const getDeptConfig = (dept: string) => {
-  switch (dept.toLowerCase()) {
+  switch (dept) {
     case "engineering":
       return {
         icon: Code2,
@@ -153,16 +76,10 @@ const getDeptConfig = (dept: string) => {
   }
 }
 
-export default function ManageJobsPage() {
-  const [jobs, setJobs] = useState<DisplayJobItem[]>(initialJobs)
-
-  // জব ডিলিট করার হ্যান্ডলার
-  const handleDeleteJob = (id: string, title: string) => {
-    if (confirm(`Are you sure you want to delete "${title}"?`)) {
-      setJobs((prev) => prev.filter((job) => job.id !== id))
-      toast.success(`Job "${title}" deleted successfully`)
-    }
-  }
+export default async function ManageJobsPage() {
+  // ডাটা দেখানো হয়েছে।
+  const jobs: DisplayJobItem[] = await getJobs()
+  console.log(jobs)
 
   return (
     <div className="min-h-screen w-full bg-[#08080c] px-4 py-8 text-neutral-100 sm:px-8 sm:py-10">
@@ -242,7 +159,7 @@ export default function ManageJobsPage() {
 
                   return (
                     <tr
-                      key={job.id}
+                      key={job._id}
                       className="group transition-colors duration-150 hover:bg-[#151522]/60"
                     >
                       {/* ১. JOB TITLE & DEPT */}
@@ -337,22 +254,14 @@ export default function ManageJobsPage() {
                         <div className="inline-flex items-center justify-end gap-1.5">
                           {/* Update Button */}
                           <Link
-                            href={`/dashboard/recruiter/post-job?edit=${job.id}`}
+                            href={`/dashboard/recruiter/post-job?edit=${job._id}`}
                             className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-white/10 bg-[#171724] px-3 py-1.5 text-xs font-medium text-neutral-200 transition-colors hover:border-[#5851ff]/40 hover:bg-[#202034] hover:text-white"
                           >
                             <Pencil className="h-3 w-3 text-[#8a75ff]" />
                             <span>Update</span>
                           </Link>
 
-                          {/* Delete Button */}
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteJob(job.id, job.title)}
-                            aria-label={`Delete ${job.title}`}
-                            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-transparent text-neutral-400 transition-colors hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-400"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
+                          <DeleteButton job={job} />
 
                           {/* More Options */}
                           <button

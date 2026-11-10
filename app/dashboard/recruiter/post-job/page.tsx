@@ -34,7 +34,8 @@ export default function PostJobPage() {
   const [formData, setFormData] = useState<CreateJobInput>({
     title: "",
     companyName: "",
-    category: "Engineering & Tech", // ড্রপডাউনের জন্য প্রথম অপশনটি রাখা ভালো
+    category: "Engineering & Tech",
+    department: "Engineering & Tech", // ডিফল্ট ডিপার্টমেন্ট
     jobType: "Full-time",
     isRemote: false,
     location: "",
@@ -45,17 +46,25 @@ export default function PostJobPage() {
     currency: "€",
     responsibilities: "",
     qualifications: "",
+    status: "active", // ডিফল্ট স্ট্যাটাস
+    applicantsCount: 0, // ইনিশিয়াল ক্যান্ডিডেট সংখ্যা
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  // ১. ইনপুট হ্যান্ডলার: ক্যাটাগরি বদলালে ডিপার্টমেন্টও যেন অটো আপডেট হয়
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => {
     const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+      // যদি ক্যাটাগরি ড্রপডাউন পরিবর্তন হয়, তবে department-ও একই ভ্যালু নিবে
+      ...(name === "category" ? { department: value } : {}),
+    }))
   }
 
   const handleRemoteToggle = () => {
@@ -66,18 +75,33 @@ export default function PostJobPage() {
     setFormData((prev) => ({ ...prev, jobType: type }))
   }
 
+  // ২. সাবমিট হ্যান্ডলার: স্যালারি টেক্সট (compensation) তৈরি করে সার্ভারে পাঠানো
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
 
-    // console.log("Submitting New Job Listing:", formData)
-    const result = await createJob(formData)
-    console.log("Form Submit to Server", result)
+    // স্যালারি যদি দেওয়া থাকে তবে টেবিলের ফরম্যাট অনুযায়ী compensation তৈরি করা
+    const formattedCompensation =
+      formData.minSalary && formData.maxSalary
+        ? `${formData.currency || "€"}${formData.minSalary} – ${formData.currency || "€"}${formData.maxSalary} / ${formData.frequency.replace("per ", "")}`
+        : "Negotiable"
 
-    setTimeout(() => {
-      setIsSubmitting(false)
+    // সার্ভারে পাঠানোর পূর্ণাঙ্গ পে-লোড
+    const payload = {
+      ...formData,
+      compensation: formattedCompensation,
+    }
+
+    try {
+      const result = await createJob(payload)
+      console.log("Form Submit to Server", result)
       toast.success("Job published successfully!")
-    }, 800)
+    } catch (error) {
+      console.error(error)
+      toast.error("Failed to publish job")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -112,7 +136,7 @@ export default function PostJobPage() {
 
           <div className="space-y-10">
             {/* ======================================================== */}
-            {/* সেকশন ১: Basic Information                               */}
+            {/* সেকশন ১: Basic Information */}
             {/* ======================================================== */}
             <div className="space-y-5">
               <div className="flex items-center gap-2 text-sm font-semibold text-white">
@@ -224,7 +248,7 @@ export default function PostJobPage() {
             </div>
 
             {/* ======================================================== */}
-            {/* সেকশন ২: Location, Compensation & Timeline                */}
+            {/* সেকশন ২: Location, Compensation & Timeline */}
             {/* ======================================================== */}
             <div className="space-y-5">
               <div className="flex items-center gap-2 text-sm font-semibold text-white">
@@ -232,7 +256,7 @@ export default function PostJobPage() {
                 <span>2. Location, Compensation & Timeline</span>
               </div>
 
-              {/* রিমোট ওয়ার্ক এলাউড সুইচ বক্স */}
+              {/* রিমোট ওয়ার্ক এলাউড সুইচ বক্স */}
               <div
                 onClick={handleRemoteToggle}
                 className="flex cursor-pointer items-center justify-between rounded-2xl border border-white/10 bg-[#121217] p-4 transition-all hover:border-white/20 sm:p-5"
@@ -318,7 +342,7 @@ export default function PostJobPage() {
                 </div>
               </div>
 
-              {/* স্যালারি রেঞ্জ ও ফ্রিকোয়েন্সি (৩ কলাম) */}
+              {/* স্যালারি রেঞ্জ ও ফ্রিকোয়েন্সি (৩ কলাম) */}
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 {/* Min Salary */}
                 <div className="space-y-2">
@@ -401,7 +425,7 @@ export default function PostJobPage() {
             </div>
 
             {/* ======================================================== */}
-            {/* সেকশন ৩: Responsibilities & Requirements                 */}
+            {/* সেকশন ৩: Responsibilities & Requirements */}
             {/* ======================================================== */}
             <div className="space-y-5">
               <div className="flex items-center gap-2 text-sm font-semibold text-white">
@@ -409,7 +433,7 @@ export default function PostJobPage() {
                 <span>3. Responsibilities & Requirements</span>
               </div>
 
-              {/* মূল দায়িত্বসমূহ (Key Responsibilities) */}
+              {/* মূল দায়িত্বসমূহ */}
               <div className="space-y-2">
                 <label
                   htmlFor="responsibilities"
@@ -429,7 +453,7 @@ export default function PostJobPage() {
                 />
               </div>
 
-              {/* যোগ্যতা ও শর্তাবলী (Qualifications & Requirements) */}
+              {/* যোগ্যতা ও শর্তাবলী */}
               <div className="space-y-2">
                 <label
                   htmlFor="qualifications"
@@ -451,8 +475,9 @@ export default function PostJobPage() {
               </div>
             </div>
           </div>
+
           <section>
-            {/* পাবলিশ অ্যাকশন বাটন */}
+            {/* পাবলিশ বাটন */}
             <button
               type="submit"
               disabled={isSubmitting}

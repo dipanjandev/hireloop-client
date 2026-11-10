@@ -20,6 +20,7 @@ export interface CreateJobInput {
   title: string
   companyName: string
   category: JobCategory
+  department?: string
   jobType: JobType
   isRemote: boolean
   location: string
@@ -28,10 +29,13 @@ export interface CreateJobInput {
   maxSalary?: number | string
   frequency: SalaryFrequency
   currency?: string
+  compensation?: string
   responsibilities: string
   qualifications: string
   recruiterId?: string
   recruiterEmail?: string
+  applicantsCount?: number
+  status?: JobStatus
 }
 
 // ২. ডাটাবেজ থেকে রিটার্ন হওয়া সম্পূর্ণ জব মডেল (Job)
