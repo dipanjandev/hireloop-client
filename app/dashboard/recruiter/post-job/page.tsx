@@ -12,8 +12,10 @@ import {
   ChevronRight,
 } from "lucide-react"
 import toast from "react-hot-toast"
+import { createJob } from "@/lib/actions/jobs"
+import { CreateJobInput, JobType } from "@/types/job"
 
-const jobTypes = ["Full-time", "Part-time", "Contract", "Internship"]
+const jobTypes = ["Full-time", "Part-time", "Contract", "Internship"] as const
 
 const jobCategories = [
   "Engineering & Tech",
@@ -29,7 +31,7 @@ const jobCategories = [
 const salaryFrequencies = ["per hour", "per month", "per year"]
 
 export default function PostJobPage() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<CreateJobInput>({
     title: "",
     companyName: "",
     category: "Engineering & Tech", // ড্রপডাউনের জন্য প্রথম অপশনটি রাখা ভালো
@@ -60,7 +62,7 @@ export default function PostJobPage() {
     setFormData((prev) => ({ ...prev, isRemote: !prev.isRemote }))
   }
 
-  const handleJobTypeSelect = (type: string) => {
+  const handleJobTypeSelect = (type: JobType) => {
     setFormData((prev) => ({ ...prev, jobType: type }))
   }
 
@@ -68,7 +70,9 @@ export default function PostJobPage() {
     e.preventDefault()
     setIsSubmitting(true)
 
-    console.log("Submitting New Job Listing:", formData)
+    // console.log("Submitting New Job Listing:", formData)
+    const result = await createJob(formData)
+    console.log("Form Submit to Server", result)
 
     setTimeout(() => {
       setIsSubmitting(false)
@@ -104,22 +108,6 @@ export default function PostJobPage() {
                 across our network.
               </p>
             </div>
-
-            {/* পাবলিশ অ্যাকশন বাটন */}
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="inline-flex h-11 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#5851ff] px-6 text-sm font-semibold text-white shadow-[0_0_20px_rgba(88,81,255,0.45)] transition-all duration-200 hover:bg-[#4942f2] hover:shadow-[0_0_25px_rgba(88,81,255,0.65)] active:scale-95 disabled:opacity-50"
-            >
-              {isSubmitting ? (
-                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-              ) : (
-                <>
-                  <span>Publish Job</span>
-                  <ArrowRight className="h-4 w-4" />
-                </>
-              )}
-            </button>
           </div>
 
           <div className="space-y-10">
@@ -463,6 +451,23 @@ export default function PostJobPage() {
               </div>
             </div>
           </div>
+          <section>
+            {/* পাবলিশ অ্যাকশন বাটন */}
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="mt-5 inline-flex h-11 w-full shrink-0 cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#5851ff] px-6 text-sm font-semibold text-white shadow-[0_0_20px_rgba(88,81,255,0.45)] transition-all duration-200 hover:bg-[#4942f2] hover:shadow-[0_0_25px_rgba(88,81,255,0.65)] active:scale-95 disabled:opacity-50"
+            >
+              {isSubmitting ? (
+                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              ) : (
+                <>
+                  <span>Publish Job</span>
+                  <ArrowRight className="h-4 w-4" />
+                </>
+              )}
+            </button>
+          </section>
         </form>
       </div>
     </div>
