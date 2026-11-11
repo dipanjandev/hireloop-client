@@ -1,5 +1,5 @@
 "use client"
-import { DisplayJobItem } from "@/app/dashboard/recruiter/jobs/page"
+import { Job } from "@/types/job"
 import { Trash2Icon } from "lucide-react"
 import {
   AlertDialog,
@@ -19,7 +19,7 @@ import { useState } from "react"
 import { toast } from "@/components/ui/toast"
 import { useRouter } from "next/navigation"
 
-const DeleteButton = ({ job }: { job: DisplayJobItem }) => {
+const DeleteButton = ({ job }: { job: Pick<Job, "_id" | "title"> }) => {
   // open Dialoug set
   const [open, setOpen] = useState(false)
   //   Router refresh korar jonno

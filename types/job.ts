@@ -1,17 +1,29 @@
-export type JobType = "Full-time" | "Part-time" | "Contract" | "Internship"
+export const JOB_TYPES = [
+  "Full-time",
+  "Part-time",
+  "Contract",
+  "Internship",
+] as const
+export type JobType = (typeof JOB_TYPES)[number]
 
-export type JobCategory =
-  | "Engineering & Tech"
-  | "Design & Creative"
-  | "Product Management"
-  | "Marketing & Sales"
-  | "DevOps & Cloud"
-  | "AI & Data Science"
-  | "Finance & Operations"
-  | "Customer Support"
-  | string
+export const JOB_CATEGORIES = [
+  "Engineering & Tech",
+  "Design & Creative",
+  "Product Management",
+  "Marketing & Sales",
+  "DevOps & Cloud",
+  "AI & Data Science",
+  "Finance & Operations",
+  "Customer Support",
+] as const
+export type JobCategory = (typeof JOB_CATEGORIES)[number] | string
 
-export type SalaryFrequency = "per hour" | "per month" | "per year"
+export const SALARY_FREQUENCIES = [
+  "per hour",
+  "per month",
+  "per year",
+] as const
+export type SalaryFrequency = (typeof SALARY_FREQUENCIES)[number]
 
 export type JobStatus = "active" | "draft" | "closed" | "expired"
 
@@ -25,6 +37,7 @@ export interface CreateJobInput {
   isRemote: boolean
   location: string
   deadline: string
+  deadlineFormatted?: string
   minSalary?: number | string
   maxSalary?: number | string
   frequency: SalaryFrequency
@@ -42,10 +55,30 @@ export interface CreateJobInput {
 export interface Job extends CreateJobInput {
   _id: string
   status: JobStatus
-  applicantsCount?: number
+  postedTime?: string
   createdAt: string
   updatedAt: string
 }
+
+// ড্যাশবোর্ড টেবিলে প্রদর্শনের জন্য জব আইটেম টাইপ (Job থেকে ডিরাইভড)
+export type DisplayJobItem = Partial<Job> &
+  Required<
+    Pick<
+      Job,
+      | "_id"
+      | "title"
+      | "department"
+      | "companyName"
+      | "location"
+      | "isRemote"
+      | "jobType"
+      | "compensation"
+      | "applicantsCount"
+      | "status"
+      | "deadlineFormatted"
+      | "postedTime"
+    >
+  >
 
 // ৩. এপিআই রেসপন্স র‍্যাপার টাইপ
 export interface ApiResponse<T = unknown> {

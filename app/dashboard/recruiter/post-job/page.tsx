@@ -12,24 +12,15 @@ import {
   ChevronRight,
 } from "lucide-react"
 import { createJob } from "@/lib/actions/jobs"
-import { CreateJobInput, JobType } from "@/types/job"
+import {
+  CreateJobInput,
+  JOB_CATEGORIES,
+  JOB_TYPES,
+  JobType,
+  SALARY_FREQUENCIES,
+} from "@/types/job"
 import { toast } from "@/components/ui/toast"
 import { useRouter } from "next/navigation"
-
-const jobTypes = ["Full-time", "Part-time", "Contract", "Internship"] as const
-
-const jobCategories = [
-  "Engineering & Tech",
-  "Design & Creative",
-  "Product Management",
-  "Marketing & Sales",
-  "DevOps & Cloud",
-  "AI & Data Science",
-  "Finance & Operations",
-  "Customer Support",
-]
-
-const salaryFrequencies = ["per hour", "per month", "per year"]
 
 export default function PostJobPage() {
   const [formData, setFormData] = useState<CreateJobInput>({
@@ -217,7 +208,7 @@ export default function PostJobPage() {
                       onChange={handleChange}
                       className="h-12 w-full appearance-none rounded-xl border border-white/10 bg-[#121217] px-4 text-sm text-neutral-100 transition-colors focus:border-[#5851ff] focus:ring-1 focus:ring-[#5851ff] focus:outline-none"
                     >
-                      {jobCategories.map((cat) => (
+                      {JOB_CATEGORIES.map((cat) => (
                         <option
                           key={cat}
                           value={cat}
@@ -238,7 +229,7 @@ export default function PostJobPage() {
                   Job Type <span className="text-[#8a75ff]">*</span>
                 </label>
                 <div className="grid grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-[#0f0f14] p-1.5 sm:grid-cols-4">
-                  {jobTypes.map((type) => {
+                  {JOB_TYPES.map((type) => {
                     const isSelected = formData.jobType === type
                     return (
                       <button
@@ -420,7 +411,7 @@ export default function PostJobPage() {
                       onChange={handleChange}
                       className="h-12 w-full appearance-none rounded-xl border border-white/10 bg-[#121217] px-4 text-sm text-neutral-100 transition-colors focus:border-[#5851ff] focus:ring-1 focus:ring-[#5851ff] focus:outline-none"
                     >
-                      {salaryFrequencies.map((freq) => (
+                      {SALARY_FREQUENCIES.map((freq) => (
                         <option
                           key={freq}
                           value={freq}

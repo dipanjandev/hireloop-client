@@ -14,25 +14,9 @@ import {
   ChevronRight,
   Briefcase,
 } from "lucide-react"
-import { Job, JobType, JobStatus } from "@/types/job"
+import { DisplayJobItem } from "@/types/job"
 import { getJobs } from "@/lib/api/jobs"
 import DeleteButton from "@/components/DeleteButton"
-
-// ফিগমা স্ক্রিনশটের হুবহু ডামি ডাটা তালিকা
-export interface DisplayJobItem extends Partial<Job> {
-  _id: string
-  title: string
-  department: string
-  companyName: string
-  location: string
-  isRemote: boolean
-  jobType: JobType
-  compensation: string
-  applicantsCount: number
-  status: JobStatus
-  deadlineFormatted: string
-  postedTime: string
-}
 
 // ডিপার্টমেন্ট অনুযায়ী আইকন ও কালার হেল্পার
 const getDeptConfig = (dept: string) => {
