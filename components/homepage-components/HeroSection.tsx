@@ -44,14 +44,21 @@ export default function HeroSection() {
 
       <div className="relative z-10 mx-auto mt-4 flex w-full max-w-4xl flex-col items-center text-center">
         {/* টপ ব্যাজ */}
-        <div className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-[#16161e]/80 px-4 py-1.5 text-xs text-neutral-300 shadow-xl backdrop-blur-md sm:mb-8">
-          <span>💼</span>
-          <span className="font-semibold tracking-wide text-white">
-            50,000+
-          </span>
-          <span className="text-[10px] tracking-wider text-neutral-400 uppercase sm:text-[11px]">
-            New Jobs This Month
-          </span>
+        <div className="mb-6 flex items-center justify-center sm:mb-8">
+          {/* বাম পাশের ফেইড হওয়া সূক্ষ্ম লাইন */}
+          <div className="h-px w-10 bg-linear-to-r from-transparent via-indigo-500/30 to-white/20 sm:w-16" />
+
+          {/* মূল ব্যাজ কন্টেইনার */}
+          <div className="inline-flex items-center gap-2.5 rounded-full border border-b-0 border-white/15 bg-linear-to-b from-[#1c1c21] via-[#101014] to-[#08080a] px-4 py-1.5 font-mono text-xs shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_10px_25px_rgba(0,0,0,0.8)] sm:px-5 sm:py-2">
+            <span className="text-sm">💼</span>
+            <span className="font-bold tracking-wider text-white">50,000+</span>
+            <span className="text-[11px] tracking-[0.15em] text-neutral-400 uppercase sm:text-xs">
+              New Jobs This Month
+            </span>
+          </div>
+
+          {/* ডান পাশের ফেইড হওয়া সূক্ষ্ম লাইন */}
+          <div className="h-px w-10 bg-linear-to-l from-transparent via-indigo-500/30 to-white/20 sm:w-16" />
         </div>
 
         {/* মেইন হেডলাইন */}

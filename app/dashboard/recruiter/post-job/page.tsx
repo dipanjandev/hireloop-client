@@ -11,9 +11,10 @@ import {
   Calendar,
   ChevronRight,
 } from "lucide-react"
-import toast from "react-hot-toast"
 import { createJob } from "@/lib/actions/jobs"
 import { CreateJobInput, JobType } from "@/types/job"
+import { toast } from "@/components/ui/toast"
+import { useRouter } from "next/navigation"
 
 const jobTypes = ["Full-time", "Part-time", "Contract", "Internship"] as const
 
@@ -51,6 +52,7 @@ export default function PostJobPage() {
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const router = useRouter()
 
   // ১. ইনপুট হ্যান্ডলার: ক্যাটাগরি বদলালে ডিপার্টমেন্টও যেন অটো আপডেট হয়
   const handleChange = (
@@ -80,28 +82,38 @@ export default function PostJobPage() {
     e.preventDefault()
     setIsSubmitting(true)
 
-    // স্যালারি যদি দেওয়া থাকে তবে টেবিলের ফরম্যাট অনুযায়ী compensation তৈরি করা
+    // ১. স্যালারি টেক্সট তৈরি
     const formattedCompensation =
       formData.minSalary && formData.maxSalary
         ? `${formData.currency || "€"}${formData.minSalary} – ${formData.currency || "€"}${formData.maxSalary} / ${formData.frequency.replace("per ", "")}`
         : "Negotiable"
 
-    // সার্ভারে পাঠানোর পূর্ণাঙ্গ পে-লোড
+    // ২. ডেডলাইন তারিখ ফরম্যাট তৈরি (যেমন: "Dec 15, 2026")
+    const formattedDeadline = formData.deadline
+      ? new Date(formData.deadline).toLocaleDateString("en-US", {
+          month: "short",
+          day: "2-digit",
+          year: "numeric",
+        })
+      : "No deadline"
+
+    // ৩. পূর্ণাঙ্গ পে-লোড
     const payload = {
       ...formData,
       compensation: formattedCompensation,
+      deadlineFormatted: formattedDeadline, // 👈 টেবিলের জন্য ডেডলাইন যুক্ত হলো
     }
 
-    try {
-      const result = await createJob(payload)
-      console.log("Form Submit to Server", result)
-      toast.success("Job published successfully!")
-    } catch (error) {
-      console.error(error)
-      toast.error("Failed to publish job")
-    } finally {
-      setIsSubmitting(false)
+    const result = await createJob(payload)
+    console.log("Form Submit to Server", result)
+    if (result.insertedId) {
+      toast.add({
+        title: "Job Added Successfully",
+        description: "This job has been Added.",
+      })
+      router.push("/dashboard/recruiter/jobs")
     }
+    setIsSubmitting(false)
   }
 
   return (
