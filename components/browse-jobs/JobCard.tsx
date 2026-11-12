@@ -8,21 +8,16 @@ import {
   DollarSign,
   Globe2,
   MapPin,
-  Zap,
 } from "lucide-react"
 import { DisplayJobItem } from "@/types/job"
+import { useRouter } from "next/navigation"
 
 interface JobCardProps {
   job: DisplayJobItem
-  onApply?: (jobId: string) => void
   onBookmark?: (jobId: string) => void
 }
 
-export const JobCard: React.FC<JobCardProps> = ({
-  job,
-  onApply,
-  onBookmark,
-}) => {
+export const JobCard: React.FC<JobCardProps> = ({ job, onBookmark }) => {
   const [isBookmarked, setIsBookmarked] = useState(false)
 
   const handleBookmarkClick = (e: React.MouseEvent) => {
@@ -31,9 +26,10 @@ export const JobCard: React.FC<JobCardProps> = ({
     onBookmark?.(job._id)
   }
 
-  const handleApplyClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    onApply?.(job._id)
+  const router = useRouter()
+
+  const handleDetailsPage = (jobIdPage: string) => {
+    router.push(`/browse-jobs/${jobIdPage}`)
   }
 
   return (
@@ -119,11 +115,10 @@ export const JobCard: React.FC<JobCardProps> = ({
         {/* Apply Now Button (কার্ডের উপর নির্দেশিত এপ্লাই বাটন) */}
         <button
           type="button"
-          onClick={handleApplyClick}
+          onClick={() => handleDetailsPage(job._id)}
           className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-[#5851ff] px-4 py-2 text-xs font-semibold text-white shadow-[0_0_15px_rgba(88,81,255,0.35)] transition-all duration-200 hover:bg-[#4942f2] hover:shadow-[0_0_20px_rgba(88,81,255,0.55)] active:scale-95 sm:text-sm"
         >
-          <Zap className="h-3.5 w-3.5 fill-white text-white" />
-          <span>Apply Now</span>
+          <span>View Details</span>
         </button>
       </div>
     </div>

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react"
 import { Search } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 interface JobSearchBarProps {
   placeholder?: string
@@ -18,6 +19,7 @@ export const JobSearchBar: React.FC<JobSearchBarProps> = ({
 }) => {
   // ১. সার্চ ইনপুট স্টেট (ডিফল্ট বা প্রপ্স থেকে)
   const [searchTerm, setSearchTerm] = useState(value || "")
+  const router = useRouter()
 
   // ২. ইনপুট লেখার হ্যান্ডলার
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,9 +30,16 @@ export const JobSearchBar: React.FC<JobSearchBarProps> = ({
   }
 
   // ৩. সার্চ বাটন ক্লিক হ্যান্ডলার (এখানে আপনার সার্চ লজিক বসাতে পারেন)
-  const handleSearchClick = (e: React.FormEvent) => {
+  const handleSearchClick = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    console.log("Searching for:", searchTerm)
+    // console.log("Searching for:", searchTerm)
+    const formData = new FormData(e.currentTarget)
+    const data = Object.fromEntries(formData.entries())
+    // console.log(data)
+    const search = data.searchTerm
+    const params = new URLSearchParams()
+    params.set("search", search as string)
+    router.push(`/browse-jobs?${params.toString()}`)
 
     // যদি প্যারেন্ট থেকে onSearch পাঠানো হয় তবে তা কল হবে
     if (onSearch) {
@@ -46,6 +55,7 @@ export const JobSearchBar: React.FC<JobSearchBarProps> = ({
       <div className="flex flex-1 items-center gap-3 pl-3 sm:pl-4">
         <Search className="h-5 w-5 shrink-0 text-neutral-400" />
         <input
+          name="searchTerm"
           type="text"
           value={value !== undefined ? value : searchTerm}
           onChange={handleInputChange}
@@ -57,7 +67,6 @@ export const JobSearchBar: React.FC<JobSearchBarProps> = ({
       {/* সার্চ একশন বাটন (handleSearchClick হ্যান্ডলার সংযুক্ত) */}
       <button
         type="submit"
-        onClick={handleSearchClick}
         className="inline-flex shrink-0 cursor-pointer items-center justify-center rounded-xl bg-white px-5 py-3 text-xs font-semibold text-neutral-950 transition-colors hover:bg-neutral-200 active:scale-95 sm:px-7 sm:text-sm"
       >
         Search Jobs

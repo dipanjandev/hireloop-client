@@ -1,4 +1,4 @@
-import { CreateJobInput, DisplayJobItem } from "@/types/job"
+import { CreateJobInput, DisplayJobItem, Job } from "@/types/job"
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
@@ -26,4 +26,25 @@ export const deleteJob = async (jobId: string) => {
     method: "DELETE",
   })
   return res.json()
+}
+
+// ৪. নির্দিষ্ট একটি জব বিস্তারিত আনার জন্য (GET /jobs/:id)
+export const getJobById = async (id: string): Promise<Job | null> => {
+  try {
+    const res = await fetch(`${BASE_URL}/jobs/${id}`, { cache: "no-store" })
+    if (res.ok) {
+      return res.json()
+    }
+  } catch {}
+
+  // Fallback: যদি ব্যাকএন্ড সরাসরি /jobs/:id রিটার্ন না করে, তবে /jobs থেকে ফিল্টার করবে
+  try {
+    const allRes = await fetch(`${BASE_URL}/jobs`, { cache: "no-store" })
+    if (allRes.ok) {
+      const allJobs: Job[] = await allRes.json()
+      return allJobs.find((j) => j._id === id) || null
+    }
+  } catch {}
+
+  return null
 }

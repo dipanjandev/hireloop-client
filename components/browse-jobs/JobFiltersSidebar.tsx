@@ -2,45 +2,107 @@
 
 import React, { useState } from "react"
 import { JOB_TYPES, JOB_CATEGORIES } from "@/types/job"
+import { useRouter } from "next/navigation"
 
+// ========================================================
+// ১. রিইউজেবল ফিল্টার গ্রুপ কম্পোনেন্ট (মেন্টর স্টাইল)
+// ========================================================
+interface FilterRadioGroupProps {
+  title: string
+  name: string
+  options: readonly string[]
+  selectedValue?: string
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+}
+
+const FilterRadioGroup: React.FC<FilterRadioGroupProps> = ({
+  title,
+  name,
+  options,
+  selectedValue,
+  onChange,
+}) => {
+  return (
+    <div>
+      <h3 className="mb-3 text-xs font-semibold tracking-wider text-neutral-300 uppercase">
+        {title}
+      </h3>
+      <div className="space-y-1.5">
+        {options.map((option) => {
+          // যদি "All ..." অপশন হয় তবে সেটার আসল ভ্যালু খালি স্ট্রিং ""
+          const isAllOption = option.startsWith("All")
+          const optionValue = isAllOption ? "" : option
+          const isChecked = selectedValue === optionValue
+
+          return (
+            <label
+              key={option}
+              className={`flex cursor-pointer items-center justify-between rounded-xl border p-2.5 text-sm transition-all ${
+                isChecked
+                  ? "border-[#5851ff]/40 bg-[#5851ff]/10 text-white shadow-[0_0_15px_rgba(88,81,255,0.15)]"
+                  : "border-transparent text-neutral-300 hover:border-white/10 hover:bg-white/5 hover:text-white"
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <input
+                  type="radio"
+                  name={name} // 👈 ফিল্টারের নাম ("jobType" অথবা "category")
+                  value={optionValue} // 👈 ফিল্টারের মান ("Full-time" ইত্যাদি)
+                  checked={isChecked}
+                  onChange={onChange} // 👈 সেই মূল হ্যান্ডলার
+                  className="h-4 w-4 border-neutral-700 bg-neutral-900 text-[#5851ff] accent-[#5851ff] focus:ring-0"
+                />
+                <span className="font-medium">{option}</span>
+              </div>
+            </label>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+// ========================================================
+// ২. মূল সাইডবার কম্পোনেন্ট (প্রপ্স হ্যান্ডলার সহ)
+// ========================================================
 interface JobFiltersSidebarProps {
   className?: string
-  selectedJobType?: string
-  selectedCategory?: string
-  onJobTypeChange?: (type: string) => void
-  onCategoryChange?: (category: string) => void
+  onFilterChange?: (name: string, value: string) => void
 }
 
 export const JobFiltersSidebar: React.FC<JobFiltersSidebarProps> = ({
   className = "",
-  selectedJobType,
-  selectedCategory,
-  onJobTypeChange,
-  onCategoryChange,
+  onFilterChange,
 }) => {
-  // ১. রেডিও সিলেকশন স্টেট (ক্লিক করলে সাথে সাথে একটিভ দেখানোর জন্য)
-  const [activeJobType, setActiveJobType] = useState<string>(selectedJobType || "")
-  const [activeCategory, setActiveCategory] = useState<string>(selectedCategory || "")
+  // কোন কোন ফিল্টার বর্তমানে সিলেক্টেড আছে
+  const [selectedFilters, setSelectedFilters] = useState({
+    jobType: "",
+    category: "",
+  })
+  const router = useRouter()
 
-  // ২. Job Type রেডিও হ্যান্ডলার
-  const handleJobTypeSelect = (type: string) => {
-    setActiveJobType(type)
-    if (onJobTypeChange) {
-      onJobTypeChange(type)
+  // 👉 সেই একক হ্যান্ডলার ফাংশন! (Single Change Handler)
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // const { name, value } = e.target
+
+    // ১. স্টেট আপডেট করা (একটিভ রেডিও দেখানোর জন্য)
+    setSelectedFilters((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }))
+
+    // console.log(`👉 ক্লিক করা ফিল্টার: ${e.target.name} -> ${e.target.value}`)
+
+    // এখানে আমরা জব গুলোকে দেখানোর কাজ টা করলাম ফিল্টারিং এর মাধ্যমে।
+    const params = new URLSearchParams(window.location.search)
+    params.set(e.target.name, e.target.value)
+    router.push(`/browse-jobs?${params.toString()}`)
+
+    // ৩. প্যারেন্ট কম্পোনেন্টকে প্রপসের মাধ্যমে খবর পৌঁছে দেওয়া
+    if (onFilterChange) {
+      onFilterChange(e.target.name, e.target.value)
     }
   }
-
-  // ৩. Job Category রেডিও হ্যান্ডলার
-  const handleCategorySelect = (category: string) => {
-    setActiveCategory(category)
-    if (onCategoryChange) {
-      onCategoryChange(category)
-    }
-  }
-
-  // কারেন্ট সিলেক্টেড ভ্যালু
-  const currentJobType = selectedJobType !== undefined ? selectedJobType : activeJobType
-  const currentCategory = selectedCategory !== undefined ? selectedCategory : activeCategory
 
   return (
     <aside
@@ -52,126 +114,26 @@ export const JobFiltersSidebar: React.FC<JobFiltersSidebarProps> = ({
       </div>
 
       <div className="space-y-6">
-        {/* ========================================================= */}
-        {/* ফিল্টার ১: Job Type (Radio Buttons) */}
-        {/* ========================================================= */}
-        <div>
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-neutral-300">
-            Job Type
-          </h3>
-          <div className="space-y-2">
-            {/* All Types অপশন */}
-            <label
-              onClick={() => handleJobTypeSelect("")}
-              className={`flex cursor-pointer items-center justify-between rounded-xl border p-2.5 text-sm transition-all ${
-                currentJobType === ""
-                  ? "border-[#5851ff]/40 bg-[#5851ff]/10 text-white shadow-[0_0_15px_rgba(88,81,255,0.15)]"
-                  : "border-transparent text-neutral-300 hover:border-white/10 hover:bg-white/5 hover:text-white"
-              }`}
-            >
-              <div className="flex items-center gap-2.5">
-                <input
-                  type="radio"
-                  name="jobTypeFilter"
-                  value=""
-                  checked={currentJobType === ""}
-                  onChange={() => handleJobTypeSelect("")}
-                  className="h-4 w-4 border-neutral-700 bg-neutral-900 text-[#5851ff] accent-[#5851ff] focus:ring-0"
-                />
-                <span className="font-medium">All Job Types</span>
-              </div>
-            </label>
-
-            {/* ডায়নামিক Job Types অপশন */}
-            {JOB_TYPES.map((type) => {
-              const isSelected = currentJobType === type
-              return (
-                <label
-                  key={type}
-                  onClick={() => handleJobTypeSelect(type)}
-                  className={`flex cursor-pointer items-center justify-between rounded-xl border p-2.5 text-sm transition-all ${
-                    isSelected
-                      ? "border-[#5851ff]/40 bg-[#5851ff]/10 text-white shadow-[0_0_15px_rgba(88,81,255,0.15)]"
-                      : "border-transparent text-neutral-300 hover:border-white/10 hover:bg-white/5 hover:text-white"
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <input
-                      type="radio"
-                      name="jobTypeFilter"
-                      value={type}
-                      checked={isSelected}
-                      onChange={() => handleJobTypeSelect(type)}
-                      className="h-4 w-4 border-neutral-700 bg-neutral-900 text-[#5851ff] accent-[#5851ff] focus:ring-0"
-                    />
-                    <span className="font-medium">{type}</span>
-                  </div>
-                </label>
-              )
-            })}
-          </div>
-        </div>
+        {/* ফিল্টার ১: Job Type (FilterRadioGroup কম্পোনেন্ট দিয়ে) */}
+        <FilterRadioGroup
+          title="Job Type"
+          name="jobType"
+          options={["All Job Types", ...JOB_TYPES]}
+          selectedValue={selectedFilters.jobType}
+          onChange={handleChange}
+        />
 
         <div className="border-t border-white/5" />
 
-        {/* ========================================================= */}
-        {/* ফিল্টার ২: Job Category (Radio Buttons) */}
-        {/* ========================================================= */}
-        <div>
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-neutral-300">
-            Job Category
-          </h3>
-          <div className="max-h-72 space-y-2 overflow-y-auto pr-1">
-            {/* All Categories অপশন */}
-            <label
-              onClick={() => handleCategorySelect("")}
-              className={`flex cursor-pointer items-center justify-between rounded-xl border p-2.5 text-sm transition-all ${
-                currentCategory === ""
-                  ? "border-[#5851ff]/40 bg-[#5851ff]/10 text-white shadow-[0_0_15px_rgba(88,81,255,0.15)]"
-                  : "border-transparent text-neutral-300 hover:border-white/10 hover:bg-white/5 hover:text-white"
-              }`}
-            >
-              <div className="flex items-center gap-2.5">
-                <input
-                  type="radio"
-                  name="categoryFilter"
-                  value=""
-                  checked={currentCategory === ""}
-                  onChange={() => handleCategorySelect("")}
-                  className="h-4 w-4 border-neutral-700 bg-neutral-900 text-[#5851ff] accent-[#5851ff] focus:ring-0"
-                />
-                <span className="font-medium">All Categories</span>
-              </div>
-            </label>
-
-            {/* ডায়নামিক Categories অপশন */}
-            {JOB_CATEGORIES.map((cat) => {
-              const isSelected = currentCategory === cat
-              return (
-                <label
-                  key={cat}
-                  onClick={() => handleCategorySelect(cat)}
-                  className={`flex cursor-pointer items-center justify-between rounded-xl border p-2.5 text-sm transition-all ${
-                    isSelected
-                      ? "border-[#5851ff]/40 bg-[#5851ff]/10 text-white shadow-[0_0_15px_rgba(88,81,255,0.15)]"
-                      : "border-transparent text-neutral-300 hover:border-white/10 hover:bg-white/5 hover:text-white"
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <input
-                      type="radio"
-                      name="categoryFilter"
-                      value={cat}
-                      checked={isSelected}
-                      onChange={() => handleCategorySelect(cat)}
-                      className="h-4 w-4 border-neutral-700 bg-neutral-900 text-[#5851ff] accent-[#5851ff] focus:ring-0"
-                    />
-                    <span className="line-clamp-1 font-medium">{cat}</span>
-                  </div>
-                </label>
-              )
-            })}
-          </div>
+        {/* ফিল্টার ২: Job Category (হুবহু একই কম্পোনেন্ট রিইউজ করা হলো) */}
+        <div className="max-h-80 overflow-y-auto pr-1">
+          <FilterRadioGroup
+            title="Job Category"
+            name="category"
+            options={["All Categories", ...JOB_CATEGORIES]}
+            selectedValue={selectedFilters.category}
+            onChange={handleChange}
+          />
         </div>
       </div>
     </aside>
