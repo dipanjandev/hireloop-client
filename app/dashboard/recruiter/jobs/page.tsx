@@ -63,7 +63,7 @@ const getDeptConfig = (dept: string) => {
 export default async function ManageJobsPage() {
   // ডাটা দেখানো হয়েছে।
   const jobs: DisplayJobItem[] = await getJobs()
-  console.log(jobs)
+  // console.log(jobs)
 
   return (
     <div className="min-h-screen w-full bg-[#08080c] px-4 py-8 text-neutral-100 sm:px-8 sm:py-10">

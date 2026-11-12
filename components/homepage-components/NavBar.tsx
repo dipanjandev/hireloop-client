@@ -26,7 +26,7 @@ const NavBar = () => {
 
   // Navigation Links
   const navLinks: NavItem[] = [
-    { title: "Browse Jobs", href: "/jobs" },
+    { title: "Browse Jobs", href: "/browse-jobs" },
     { title: "Company", href: "/company" },
     { title: "Pricing", href: "/pricing" },
     { title: "Dashboard", href: `/dashboard/${userSession?.role}` },

@@ -11,7 +11,7 @@ import {
   Calendar,
   ChevronRight,
 } from "lucide-react"
-import { createJob } from "@/lib/actions/jobs"
+import { createJob } from "@/lib/api/jobs"
 import {
   CreateJobInput,
   JOB_CATEGORIES,
