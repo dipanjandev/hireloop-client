@@ -30,21 +30,18 @@ export const deleteJob = async (jobId: string) => {
 
 // ৪. নির্দিষ্ট একটি জব বিস্তারিত আনার জন্য (GET /jobs/:id)
 export const getJobById = async (id: string): Promise<Job | null> => {
-  try {
-    const res = await fetch(`${BASE_URL}/jobs/${id}`, { cache: "no-store" })
-    if (res.ok) {
-      return res.json()
-    }
-  } catch {}
+  const res = await fetch(`${BASE_URL}/jobs/${id}`, { cache: "no-store" })
+  return res.json()
+}
 
-  // Fallback: যদি ব্যাকএন্ড সরাসরি /jobs/:id রিটার্ন না করে, তবে /jobs থেকে ফিল্টার করবে
-  try {
-    const allRes = await fetch(`${BASE_URL}/jobs`, { cache: "no-store" })
-    if (allRes.ok) {
-      const allJobs: Job[] = await allRes.json()
-      return allJobs.find((j) => j._id === id) || null
-    }
-  } catch {}
-
-  return null
+// ৫. এপ্লিকেশন এর ডাটা কালেক্ট করবে যে এপিআই।
+export const applyToAJob = async (data: string) => {
+  const response = await fetch(`${BASE_URL}/applications`, {
+    method: "POST",
+    headers: {
+      "Content-type": "application/json",
+    },
+    body: JSON.stringify(data),
+  })
+  return response.json()
 }

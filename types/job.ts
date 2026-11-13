@@ -18,11 +18,7 @@ export const JOB_CATEGORIES = [
 ] as const
 export type JobCategory = (typeof JOB_CATEGORIES)[number] | string
 
-export const SALARY_FREQUENCIES = [
-  "per hour",
-  "per month",
-  "per year",
-] as const
+export const SALARY_FREQUENCIES = ["per hour", "per month", "per year"] as const
 export type SalaryFrequency = (typeof SALARY_FREQUENCIES)[number]
 
 export type JobStatus = "active" | "draft" | "closed" | "expired"

@@ -10,7 +10,6 @@ import {
   Building2,
   CheckCircle2,
   Clock,
-  ExternalLink,
   Globe2,
   Laptop,
   MapPin,
@@ -18,6 +17,7 @@ import {
   ShieldCheck,
   Sparkles,
 } from "lucide-react"
+import ApplyButton from "@/components/jobByIdPage/ApplyButton"
 
 interface JobDetailsPageProps {
   params: Promise<{ id: string }>
@@ -87,9 +87,7 @@ export default async function JobDetailsPage({ params }: JobDetailsPageProps) {
           </Link>
         </div>
 
-        {/* ======================================================== */}
         {/* সেকশন ১: টপ হেডার কার্ড (ফিগমা স্ক্রিনশটের হুবহু ডিজাইন) */}
-        {/* ======================================================== */}
         <div className="flex flex-col justify-between gap-6 rounded-2xl border border-white/10 bg-[#0e0e15]/90 p-6 shadow-[0_15px_40px_rgba(0,0,0,0.6)] backdrop-blur-xl sm:flex-row sm:items-center sm:p-8">
           {/* কোম্পানি লোগো ও টাইটেল */}
           <div className="flex items-start gap-4 sm:items-center sm:gap-5">
@@ -125,13 +123,8 @@ export default async function JobDetailsPage({ params }: JobDetailsPageProps) {
               <Bookmark className="h-4 w-4" />
             </button>
 
-            {/* এপ্লাই বাটন (ফিগমা স্ক্রিনশটের সলিড হোয়াইট বাটন) */}
-            <button
-              type="button"
-              className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-bold text-neutral-950 shadow-[0_0_20px_rgba(255,255,255,0.2)] transition-all duration-200 hover:bg-neutral-200 active:scale-95 sm:px-8"
-            >
-              <span>Apply Now</span>
-            </button>
+            {/* এপ্লাই বাটন কম্পোনেন্ট এর মাধ্যমে আনা হয়েছে। */}
+            <ApplyButton job={job} />
           </div>
         </div>
 
@@ -369,15 +362,6 @@ export default async function JobDetailsPage({ params }: JobDetailsPageProps) {
                 </span>
               </div>
             </div>
-
-            {/* ভিজিট ওয়েবসাইট বাটন */}
-            <button
-              type="button"
-              className="mt-6 flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 py-3 text-xs font-semibold text-neutral-200 transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white sm:text-sm"
-            >
-              <span>Visit Website</span>
-              <ExternalLink className="h-3.5 w-3.5 text-neutral-400" />
-            </button>
           </div>
         </div>
       </main>
