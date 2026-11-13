@@ -94,3 +94,6 @@ export interface JobFilters {
   minSalary?: number
   maxSalary?: number
 }
+
+// ৫. জব অ্যাপ্লিকেশন সংক্রান্ত সকল টাইপ রী-এক্সপোর্ট
+export * from "./application"

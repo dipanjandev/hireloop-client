@@ -1,3 +1,4 @@
+import { CreateApplicationInput } from "@/types/application"
 import { CreateJobInput, DisplayJobItem, Job } from "@/types/job"
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
@@ -35,7 +36,7 @@ export const getJobById = async (id: string): Promise<Job | null> => {
 }
 
 // ৫. এপ্লিকেশন এর ডাটা কালেক্ট করবে যে এপিআই।
-export const applyToAJob = async (data: string) => {
+export const applyToAJob = async (data: CreateApplicationInput) => {
   const response = await fetch(`${BASE_URL}/applications`, {
     method: "POST",
     headers: {

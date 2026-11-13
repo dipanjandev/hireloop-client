@@ -2,6 +2,7 @@
 
 import { applyToAJob } from "@/lib/api/jobs"
 import { useSession } from "@/lib/auth-client"
+import { CreateApplicationInput } from "@/types/application"
 import { Job } from "@/types/job"
 import { useRouter } from "next/navigation"
 import toast from "react-hot-toast"
@@ -17,7 +18,7 @@ const ApplyButton = ({ job }: { job: Job }) => {
       router.push(`/signin?redirectTo=/browse-jobs/${job._id}`)
     } else if (user?.role === "seeker") {
       //   TODO: only send jobId and userId or email address for the application
-      const application = {
+      const application: CreateApplicationInput = {
         jobId: job._id,
         userId: user.id,
         email: user.email,
