@@ -46,3 +46,12 @@ export const applyToAJob = async (data: CreateApplicationInput) => {
   })
   return response.json()
 }
+
+// Get Application
+
+export const getApplications = async (query: string) => {
+  const res = await fetch(`${BASE_URL}/applications?${query}`, {
+    cache: "no-store",
+  })
+  return res.json()
+}

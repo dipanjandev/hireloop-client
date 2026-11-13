@@ -11,7 +11,7 @@ interface ApplicationStatsProps {
 }
 
 export const ApplicationStats: React.FC<ApplicationStatsProps> = ({
-  totalCount = 24,
+  totalCount = ApplicationStats.length,
   closingSoonCount = 3,
   totalLabel = "Total Saved",
   closingSoonLabel = "Closing Soon",
