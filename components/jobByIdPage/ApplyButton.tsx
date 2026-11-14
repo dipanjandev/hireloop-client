@@ -1,6 +1,6 @@
 "use client"
 
-import { applyToAJob } from "@/lib/api/jobs"
+import { applyToAJob, getApplicationsCount } from "@/lib/api/jobs"
 import { useSession } from "@/lib/auth-client"
 import { CreateApplicationInput } from "@/types/application"
 import { Job } from "@/types/job"
@@ -17,20 +17,29 @@ const ApplyButton = ({ job }: { job: Job }) => {
     if (!user) {
       router.push(`/signin?redirectTo=/browse-jobs/${job._id}`)
     } else if (user?.role === "seeker") {
-      //   TODO: only send jobId and userId or email address for the application
-      const application: CreateApplicationInput = {
-        jobId: job._id,
-        userId: user.id,
-        email: user.email,
-        jobTitle: job.title,
-        companyName: job.companyName,
-      }
-      const result = await applyToAJob(application)
-      //   console.log(result)
+      // কতগুলো এপ্লাই করল সেটা দেখাতে হবে এখানে।
+      const countResult = await getApplicationsCount(`applicantId=${user.id}`)
+      // এখন আমরা কন্ডিশন এপ্লাই করব।
+      if (countResult.count >= 10) {
+        // আমরা তাকে পেমেন্ট পেজ এর মধ্যে রিডাইরেক্ট করে দিব।
+        router.push("/payment")
+        return
+      } else {
+        //   TODO: only send jobId and userId or email address for the application
+        const application: CreateApplicationInput = {
+          jobId: job._id,
+          userId: user.id,
+          email: user.email,
+          jobTitle: job.title,
+          companyName: job.companyName,
+        }
+        const result = await applyToAJob(application)
+        //   console.log(result)
 
-      if (result.insertedId) {
-        // console.log("Application Submitted Successfully")
-        toast.success("Application Submitted Successfully")
+        if (result.insertedId) {
+          // console.log("Application Submitted Successfully")
+          toast.success("Application Submitted Successfully")
+        }
       }
     } else {
       console.log("User is not a Job seeker")
