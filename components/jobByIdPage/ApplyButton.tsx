@@ -22,7 +22,7 @@ const ApplyButton = ({ job }: { job: Job }) => {
       // এখন আমরা কন্ডিশন এপ্লাই করব।
       if (countResult.count >= 10) {
         // আমরা তাকে পেমেন্ট পেজ এর মধ্যে রিডাইরেক্ট করে দিব।
-        router.push("/payment")
+        router.push("/checkout")
         return
       } else {
         //   TODO: only send jobId and userId or email address for the application
