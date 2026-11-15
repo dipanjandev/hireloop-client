@@ -1,6 +1,7 @@
 "use client"
 
 import { applyToAJob, getApplicationsCount } from "@/lib/api/jobs"
+import { getUserPremiumById } from "@/lib/api/user"
 import { useSession } from "@/lib/auth-client"
 import { CreateApplicationInput } from "@/types/application"
 import { Job } from "@/types/job"
@@ -17,11 +18,15 @@ const ApplyButton = ({ job }: { job: Job }) => {
     if (!user) {
       router.push(`/signin?redirectTo=/browse-jobs/${job._id}`)
     } else if (user?.role === "seeker") {
+      const premiumResult = await getUserPremiumById(user.id)
+      // console.log("premiumResult", premiumResult)
+
       // কতগুলো এপ্লাই করল সেটা দেখাতে হবে এখানে।
       const countResult = await getApplicationsCount(`applicantId=${user.id}`)
       // এখন আমরা কন্ডিশন এপ্লাই করব।
-      if (countResult.count >= 10) {
+      if (!premiumResult.premium && countResult.count >= 2) {
         // আমরা তাকে পেমেন্ট পেজ এর মধ্যে রিডাইরেক্ট করে দিব।
+        toast.error("Please Pay first before apply more!")
         router.push("/checkout")
         return
       } else {
@@ -37,8 +42,8 @@ const ApplyButton = ({ job }: { job: Job }) => {
         //   console.log(result)
 
         if (result.insertedId) {
-          // console.log("Application Submitted Successfully")
           toast.success("Application Submitted Successfully")
+          router.push("/browse-jobs")
         }
       }
     } else {
