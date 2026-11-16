@@ -11,11 +11,11 @@ import {
   ChevronRight,
   Briefcase,
   Building2,
-  CheckCircle2,
   Clock,
   Sparkles,
   UserCheck,
 } from "lucide-react"
+import ApplicationStatusSelect from "@/components/recruiter/ApplicationStatusSelect"
 
 interface JobApplicationsPageProps {
   params: Promise<{ id: string }>
@@ -24,15 +24,25 @@ interface JobApplicationsPageProps {
 // স্ট্যাটাস অনুযায়ী ব্যাজ স্টাইল হেল্পার
 const getStatusConfig = (status?: ApplicationStatus | string) => {
   switch (status?.toLowerCase()) {
-    case "shortlisted":
     case "accepted":
       return {
-        label: "Shortlisted",
-        classes: "border-emerald-500/20 bg-emerald-500/10 text-emerald-400",
+        label: "Accepted",
+        classes: "border-emerald-500/25 bg-emerald-500/15 text-emerald-400",
         dot: "bg-emerald-400 shadow-[0_0_6px_#34d399]",
       }
-    case "reviewing":
+    case "shortlisted":
+      return {
+        label: "Shortlisted",
+        classes: "border-teal-500/20 bg-teal-500/10 text-teal-400",
+        dot: "bg-teal-400 shadow-[0_0_6px_#2dd4bf]",
+      }
     case "interview":
+      return {
+        label: "Interview",
+        classes: "border-purple-500/20 bg-purple-500/10 text-purple-400",
+        dot: "bg-purple-400 shadow-[0_0_6px_#c084fc]",
+      }
+    case "reviewing":
       return {
         label: "In Review",
         classes: "border-amber-500/20 bg-amber-500/10 text-amber-400",
@@ -107,11 +117,13 @@ export default async function JobApplicationsPage({
   const newSubmissionsCount = applications.filter(
     (a) => !a.status || a.status === "applied"
   ).length
+
   const reviewedCount = applications.filter(
     (a) =>
       a.status === "reviewing" ||
       a.status === "interview" ||
-      a.status === "shortlisted"
+      a.status === "shortlisted" ||
+      a.status === "accepted"
   ).length
 
   // যদি জব না পাওয়া যায়
@@ -375,15 +387,11 @@ export default async function JobApplicationsPage({
                             <span className="hidden sm:inline">Contact</span>
                           </a>
 
-                          {/* View Application Details */}
-                          <button
-                            type="button"
-                            className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-white/10 bg-[#171724] px-2.5 py-1.5 text-xs font-medium text-neutral-200 transition-colors hover:border-blue-500/40 hover:bg-[#1e1e32] hover:text-white"
-                            title="Candidate details"
-                          >
-                            <CheckCircle2 className="h-3 w-3 text-blue-400" />
-                            <span>Review</span>
-                          </button>
+                          {/* ✅ নতুন স্ট্যাটাস ড্রপডাউন */}
+                          <ApplicationStatusSelect
+                            applicationId={app._id}
+                            currentStatus={app.status}
+                          />
                         </div>
                       </td>
                     </tr>
