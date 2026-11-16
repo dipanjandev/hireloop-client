@@ -41,8 +41,8 @@ export interface CreateJobInput {
   compensation?: string
   responsibilities: string
   qualifications: string
-  recruiterId?: string
-  recruiterEmail?: string
+  recruiterId: string
+  recruiterEmail: string
   applicantsCount?: number
   status?: JobStatus
 }

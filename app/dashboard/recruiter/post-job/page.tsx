@@ -21,8 +21,13 @@ import {
 } from "@/types/job"
 import { toast } from "@/components/ui/toast"
 import { useRouter } from "next/navigation"
+import { useSession } from "@/lib/auth-client"
 
 export default function PostJobPage() {
+  const { data: session } = useSession()
+  // console.log(session?.user)
+  const user = session?.user
+
   const [formData, setFormData] = useState<CreateJobInput>({
     title: "",
     companyName: "",
@@ -38,6 +43,8 @@ export default function PostJobPage() {
     currency: "€",
     responsibilities: "",
     qualifications: "",
+    recruiterId: user?.id ?? "",
+    recruiterEmail: user?.email ?? "",
     status: "active", // ডিফল্ট স্ট্যাটাস
     applicantsCount: 0, // ইনিশিয়াল ক্যান্ডিডেট সংখ্যা
   })
