@@ -1,16 +1,13 @@
 "use client"
 
 import React, { useState, useMemo } from "react"
-import {
-  Search,
-  ChevronDown,
-  Download,
-  Filter,
-  UserX,
-} from "lucide-react"
+import { Search, ChevronDown, Download, Filter, UserX } from "lucide-react"
 import { AdminUserItem, UserRole } from "@/types/user"
 import { RoleBadge } from "./RoleBadge"
 import { RoleToggleButton } from "./RoleToggleButton"
+import { updateUsersRole } from "@/lib/actions/users"
+import toast from "react-hot-toast"
+import { useRouter } from "next/navigation"
 
 interface UserManagementTableProps {
   users: AdminUserItem[]
@@ -50,19 +47,19 @@ const formatJoinDate = (dateStr?: string) => {
 
 export const UserManagementTable: React.FC<UserManagementTableProps> = ({
   users,
-  onRoleUpdate,
 }) => {
   // ১. সার্চ ও ফিল্টার স্টেট
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedRole, setSelectedRole] = useState<string>("all")
   const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const router = useRouter()
 
   // =========================================================================
   // 👉 Role আপডেট করার ইভেন্ট হ্যান্ডলার
   // নির্দেশনামতে এখানে কোনো ইন্টারনাল লজিক রাখা হয়নি।
   // পরবর্তীতে আপনি এখানে আপনার API বা সার্ভার অ্যাকশন বসাবেন।
   // =========================================================================
-  const handleRoleChange = (userId: string, newRole: UserRole) => {
+  const handleRoleChange = async (userId: string, newRole: UserRole) => {
     // ---------------------------------------------------------------------
     // TODO: আপনার Role আপডেট করার API বা সার্ভার অ্যাকশন লজিক এখানে বসাবেন
     // উদাহরণ:
@@ -72,11 +69,11 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
     //   body: JSON.stringify({ role: newRole }),
     // })
     // ---------------------------------------------------------------------
-
-    if (onRoleUpdate) {
-      onRoleUpdate(userId, newRole)
-    } else {
-      console.log("Role update triggered for user:", { userId, newRole })
+    const res = await updateUsersRole(userId, newRole)
+    // console.log("respone after update", res)
+    if (res.modifiedCount > 0) {
+      toast.success("Role Updated Successfully!")
+      router.refresh()
     }
   }
 
@@ -117,13 +114,13 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         {/* Search Input */}
         <div className="relative w-full sm:w-72">
-          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
+          <Search className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-neutral-500" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by email..."
-            className="h-10 w-full rounded-xl border border-white/10 bg-[#0d0d14]/90 pl-10 pr-4 text-xs text-neutral-200 placeholder-neutral-500 transition-colors focus:border-[#5851ff] focus:outline-none focus:ring-1 focus:ring-[#5851ff]"
+            className="h-10 w-full rounded-xl border border-white/10 bg-[#0d0d14]/90 pr-4 pl-10 text-xs text-neutral-200 placeholder-neutral-500 transition-colors focus:border-[#5851ff] focus:ring-1 focus:ring-[#5851ff] focus:outline-none"
           />
         </div>
 
@@ -142,7 +139,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
             </button>
 
             {isFilterOpen && (
-              <div className="absolute right-0 top-11 z-50 w-36 rounded-xl border border-white/10 bg-[#12121a] p-1 shadow-2xl backdrop-blur-2xl">
+              <div className="absolute top-11 right-0 z-50 w-36 rounded-xl border border-white/10 bg-[#12121a] p-1 shadow-2xl backdrop-blur-2xl">
                 {["all", "seeker", "recruiter", "admin"].map((role) => (
                   <button
                     key={role}
@@ -151,9 +148,9 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                       setSelectedRole(role)
                       setIsFilterOpen(false)
                     }}
-                    className={`flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-xs transition-colors cursor-pointer ${
+                    className={`flex w-full cursor-pointer items-center justify-between rounded-lg px-2.5 py-1.5 text-xs transition-colors ${
                       selectedRole === role
-                        ? "bg-[#5851ff]/20 text-[#8b85ff] font-medium"
+                        ? "bg-[#5851ff]/20 font-medium text-[#8b85ff]"
                         : "text-neutral-300 hover:bg-white/5 hover:text-white"
                     }`}
                   >
@@ -227,7 +224,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                     <td className="px-5 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
                         {/* Circular Avatar */}
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10 bg-linear-to-br from-[#1a1a28] to-[#111118] font-bold text-xs text-neutral-200 shadow-sm">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10 bg-linear-to-br from-[#1a1a28] to-[#111118] text-xs font-bold text-neutral-200 shadow-sm">
                           {initials}
                         </div>
                         <div className="font-semibold text-white transition-colors group-hover:text-[#a594ff]">
@@ -238,7 +235,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
 
                     {/* ২. EMAIL ADDRESS */}
                     <td className="px-5 py-4 whitespace-nowrap">
-                      <span className="text-neutral-400 font-mono text-xs">
+                      <span className="font-mono text-xs text-neutral-400">
                         {user.email}
                       </span>
                     </td>
@@ -250,7 +247,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
 
                     {/* ৪. JOIN DATE */}
                     <td className="px-5 py-4 whitespace-nowrap">
-                      <span className="text-neutral-400 text-xs">
+                      <span className="text-xs text-neutral-400">
                         {formatJoinDate(user.createdAt)}
                       </span>
                     </td>
@@ -287,7 +284,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                             onClick={() => {
                               console.log("Activate user clicked:", user._id)
                             }}
-                            className="text-xs font-medium text-emerald-400 transition-colors hover:text-emerald-300 hover:underline cursor-pointer"
+                            className="cursor-pointer text-xs font-medium text-emerald-400 transition-colors hover:text-emerald-300 hover:underline"
                           >
                             Activate
                           </button>
@@ -297,7 +294,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                             onClick={() => {
                               console.log("Suspend user clicked:", user._id)
                             }}
-                            className="text-xs font-medium text-rose-400 transition-colors hover:text-rose-300 hover:underline cursor-pointer"
+                            className="cursor-pointer text-xs font-medium text-rose-400 transition-colors hover:text-rose-300 hover:underline"
                           >
                             Suspend
                           </button>
@@ -313,7 +310,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
 
         {/* এম্পটি স্টেট (যদি কোনো ইউজার না পাওয়া যায়) */}
         {filteredUsers.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+          <div className="flex flex-col items-center justify-center px-4 py-16 text-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-neutral-400">
               <UserX className="h-6 w-6 text-neutral-500" />
             </div>
@@ -329,7 +326,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
-                className="mt-4 text-xs font-medium text-[#8a75ff] hover:underline cursor-pointer"
+                className="mt-4 cursor-pointer text-xs font-medium text-[#8a75ff] hover:underline"
               >
                 Clear search query
               </button>
