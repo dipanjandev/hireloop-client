@@ -1,25 +1,22 @@
 "use server"
 import { CreateApplicationInput } from "@/types/application"
 import { CreateJobInput, DisplayJobItem, Job } from "@/types/job"
-import { authFetch } from "../core/server"
+import { authFetch, protectedMutation } from "../core/server"
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
 // ১. সকল জব তালিকা আনার জন্য (GET /jobs)
 export const getJobs = async (query = ""): Promise<DisplayJobItem[]> => {
-  const res = await fetch(`${BASE_URL}/jobs?${query}`)
+  const res = await fetch(`${BASE_URL}/jobs?${query}`, {
+    cache: "no-cache",
+  })
   return res.json()
 }
 
 // ২. নতুন জব পোস্ট করার জন্য (POST /jobs)
 export const createJob = async (data: CreateJobInput) => {
-  const res = await fetch(`${BASE_URL}/jobs`, {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-    },
-    body: JSON.stringify(data),
-  })
+  const api = `${BASE_URL}/jobs`
+  const res = await protectedMutation(api, "POST", data)
   return res.json()
 }
 
@@ -39,13 +36,9 @@ export const getJobById = async (id: string): Promise<Job | null> => {
 
 // ৫. এপ্লিকেশন এর ডাটা কালেক্ট করবে যে এপিআই।
 export const applyToAJob = async (data: CreateApplicationInput) => {
-  const response = await fetch(`${BASE_URL}/applications`, {
-    method: "POST",
-    headers: {
-      "Content-type": "application/json",
-    },
-    body: JSON.stringify(data),
-  })
+  const api = `${BASE_URL}/applications`
+
+  const response = await protectedMutation(api, "POST", data)
   return response.json()
 }
 
