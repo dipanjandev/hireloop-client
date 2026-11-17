@@ -5,9 +5,9 @@ import { Search, ChevronDown, Download, Filter, UserX } from "lucide-react"
 import { AdminUserItem, UserRole } from "@/types/user"
 import { RoleBadge } from "./RoleBadge"
 import { RoleToggleButton } from "./RoleToggleButton"
-import { updateUsersRole } from "@/lib/actions/users"
 import toast from "react-hot-toast"
 import { useRouter } from "next/navigation"
+import { updateUsersRole } from "@/lib/actions/better-auth-users"
 
 interface UserManagementTableProps {
   users: AdminUserItem[]
@@ -60,15 +60,6 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
   // পরবর্তীতে আপনি এখানে আপনার API বা সার্ভার অ্যাকশন বসাবেন।
   // =========================================================================
   const handleRoleChange = async (userId: string, newRole: UserRole) => {
-    // ---------------------------------------------------------------------
-    // TODO: আপনার Role আপডেট করার API বা সার্ভার অ্যাকশন লজিক এখানে বসাবেন
-    // উদাহরণ:
-    // await fetch(`/api/admin/users/${userId}/role`, {
-    //   method: "PATCH",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify({ role: newRole }),
-    // })
-    // ---------------------------------------------------------------------
     const res = await updateUsersRole(userId, newRole)
     // console.log("respone after update", res)
     if (res.modifiedCount > 0) {

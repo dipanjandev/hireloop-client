@@ -1,8 +1,8 @@
-import { getAllUsers } from "@/lib/api/user"
 import { AdminUserItem, UserStats } from "@/types/user"
 import { UserStatsCards } from "@/components/admin-users/UserStatsCards"
 import { UserManagementTable } from "@/components/admin-users/UserManagementTable"
 import { Users, Bell, HelpCircle, ChevronDown } from "lucide-react"
+import { getAllUsers } from "@/lib/actions/users"
 
 export default async function AdminUsersPage() {
   // ১. ডাটাবেজ থেকে সমস্ত ইউজার তালিকা ফেচ করা
