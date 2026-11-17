@@ -33,7 +33,7 @@ const ApplicationStatusSelect = ({
 
     try {
       const result = await updateApplications(applicationId, newStatus)
-      console.log(result)
+      // console.log(result)
 
       if (result.modifiedCount > 0) {
         toast.success(`Status updated to ${newStatus}`)

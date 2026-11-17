@@ -4,17 +4,7 @@ import React, { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import {
-  Mail,
-  Lock,
-  User,
-  Eye,
-  EyeOff,
-  ArrowRight,
-  Briefcase,
-  UserCheck,
-  ShieldCheck,
-} from "lucide-react"
+import { Mail, Lock, User, Eye, EyeOff, ArrowRight } from "lucide-react"
 import { signUp } from "@/lib/auth-client"
 import toast from "react-hot-toast"
 
@@ -26,7 +16,7 @@ export default function SignUpPage() {
     name: "",
     email: "",
     password: "",
-    role: "seeker" as "seeker" | "recruiter" | "admin",
+
     agreeTerms: false,
   })
 
@@ -41,11 +31,6 @@ export default function SignUpPage() {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }))
-  }
-
-  // ৪. রোল সিলেকশন হ্যান্ডলার ("seeker", "recruiter", "admin")
-  const handleRoleSelect = (selectedRole: "seeker" | "recruiter" | "admin") => {
-    setFormData((prev) => ({ ...prev, role: selectedRole }))
   }
 
   // ৫. ফর্ম সাবমিট হ্যান্ডলার ও Better-Auth-এ ডাটা প্রেরণ
@@ -66,7 +51,6 @@ export default function SignUpPage() {
         name: formData.name,
         email: formData.email,
         password: formData.password,
-        role: formData.role,
       } as Record<string, unknown> as Parameters<typeof signUp.email>[0])
 
       if (error) {
@@ -128,56 +112,6 @@ export default function SignUpPage() {
           <p className="mt-2 text-xs text-neutral-400 sm:text-sm">
             Create an account to unlock curated jobs and world-class talent.
           </p>
-        </div>
-
-        {/* ব্যবহারকারী রোল নির্বাচন (Seeker / Recruiter / Admin) */}
-        <div className="mb-6 space-y-2">
-          <label className="text-xs font-medium text-neutral-300">
-            I am joining as a
-          </label>
-          <div className="grid grid-cols-3 gap-2 rounded-2xl border border-white/10 bg-[#161620] p-1.5">
-            {/* ১. Seeker বাটন */}
-            <button
-              type="button"
-              onClick={() => handleRoleSelect("seeker")}
-              className={`flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-semibold transition-all duration-200 sm:flex-row ${
-                formData.role === "seeker"
-                  ? "bg-[#5851ff] text-white shadow-[0_0_15px_rgba(88,81,255,0.45)]"
-                  : "text-neutral-400 hover:bg-white/5 hover:text-white"
-              }`}
-            >
-              <UserCheck className="h-4 w-4" />
-              <span>Seeker</span>
-            </button>
-
-            {/* ২. Recruiter বাটন */}
-            <button
-              type="button"
-              onClick={() => handleRoleSelect("recruiter")}
-              className={`flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-semibold transition-all duration-200 sm:flex-row ${
-                formData.role === "recruiter"
-                  ? "bg-[#5851ff] text-white shadow-[0_0_15px_rgba(88,81,255,0.45)]"
-                  : "text-neutral-400 hover:bg-white/5 hover:text-white"
-              }`}
-            >
-              <Briefcase className="h-4 w-4" />
-              <span>Recruiter</span>
-            </button>
-
-            {/* ৩. Admin বাটন */}
-            <button
-              type="button"
-              onClick={() => handleRoleSelect("admin")}
-              className={`flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-semibold transition-all duration-200 sm:flex-row ${
-                formData.role === "admin"
-                  ? "bg-[#5851ff] text-white shadow-[0_0_15px_rgba(88,81,255,0.45)]"
-                  : "text-neutral-400 hover:bg-white/5 hover:text-white"
-              }`}
-            >
-              <ShieldCheck className="h-4 w-4" />
-              <span>Admin</span>
-            </button>
-          </div>
         </div>
 
         {/* গুগল ওয়ান-ক্লিক সাইন-আপ বাটন */}

@@ -1,5 +1,7 @@
+"use server"
 import { CreateApplicationInput } from "@/types/application"
 import { CreateJobInput, DisplayJobItem, Job } from "@/types/job"
+import { authFetch } from "../core/server"
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
@@ -48,16 +50,14 @@ export const applyToAJob = async (data: CreateApplicationInput) => {
 }
 
 // Get Application
-
 export const getApplications = async (query: string) => {
-  const res = await fetch(`${BASE_URL}/applications?${query}`, {
-    cache: "no-store",
-  })
+  const api = `${BASE_URL}/applications?${query}`
+  const res = await authFetch(api)
   return res.json()
 }
 
 export const getApplicationsCount = async (
-  query= ""
+  query = ""
 ): Promise<{ count: number }> => {
   const res = await fetch(`${BASE_URL}/applications/count?${query}`, {
     cache: "no-store",
