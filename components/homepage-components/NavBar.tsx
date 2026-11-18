@@ -2,7 +2,7 @@
 // import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Menu } from "lucide-react"
+import { Menu, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,
@@ -77,10 +77,33 @@ const NavBar = () => {
           <div className="flex items-center gap-4">
             {userSession ? (
               <>
-                <span>Welcome, {userSession.name}</span>
+                <div className="flex items-center gap-2.5">
+                  {userSession.image ? (
+                    <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full border border-white/20">
+                      <Image
+                        src={userSession.image}
+                        alt={userSession.name || "User Avatar"}
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#5851ff]/40 bg-[#5851ff]/20 text-xs font-semibold text-[#8a75ff]">
+                      {userSession.name ? (
+                        userSession.name.charAt(0).toUpperCase()
+                      ) : (
+                        <User className="h-4 w-4" />
+                      )}
+                    </div>
+                  )}
+                  <span className="text-sm font-medium text-neutral-200">
+                    Welcome, {userSession.name}
+                  </span>
+                </div>
                 <Button
                   onClick={handleSignOut}
-                  className="h-11 rounded-xl bg-red-500 px-6 py-2 text-sm font-medium text-white transition-all duration-200 hover:bg-red-700"
+                  className="h-10 cursor-pointer rounded-xl bg-red-500/90 px-5 text-sm font-medium text-white transition-all duration-200 hover:bg-red-600"
                 >
                   Sign Out
                 </Button>
@@ -146,7 +169,43 @@ const NavBar = () => {
               {/* Mobile CTA */}
               <div className="flex flex-col gap-3 border-t border-neutral-800 pt-6">
                 {userSession ? (
-                  <span>Welcome, {userSession.name}</span>
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center gap-3 px-1">
+                      {userSession.image ? (
+                        <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full border border-white/20">
+                          <Image
+                            src={userSession.image}
+                            alt={userSession.name || "User Avatar"}
+                            fill
+                            className="object-cover"
+                            unoptimized
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#5851ff]/40 bg-[#5851ff]/20 text-sm font-semibold text-[#8a75ff]">
+                          {userSession.name ? (
+                            userSession.name.charAt(0).toUpperCase()
+                          ) : (
+                            <User className="h-5 w-5" />
+                          )}
+                        </div>
+                      )}
+                      <div className="flex flex-col overflow-hidden">
+                        <span className="truncate text-sm font-semibold text-white">
+                          {userSession.name}
+                        </span>
+                        <span className="text-xs text-neutral-400 capitalize">
+                          {userSession.role || "seeker"}
+                        </span>
+                      </div>
+                    </div>
+                    <Button
+                      onClick={handleSignOut}
+                      className="h-10 w-full cursor-pointer rounded-xl bg-red-500/90 text-sm font-medium text-white transition-colors hover:bg-red-600"
+                    >
+                      Sign Out
+                    </Button>
+                  </div>
                 ) : (
                   <>
                     <Link
